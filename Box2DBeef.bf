@@ -7,13 +7,13 @@ public function void* b2AllocFcn(uint32 size, int32 alignment);
 
 public function void b2FreeFcn(void* mem);
 
+public function int32 b2AssertFcn(char8* condition, char8* fileName, int32 lineNumber);
+
 [CLink]
 public static extern void b2SetAllocator(b2AllocFcn allocFcn, b2FreeFcn freeFcn);
 
 [CLink]
-public static extern uint32 b2GetByteCount();
-
-public function int32 b2AssertFcn(char8* condition, char8* fileName, int32 lineNumber);
+public static extern int32 b2GetByteCount();
 
 [CLink]
 public static extern void b2SetAssertFcn(b2AssertFcn assertFcn);
@@ -53,6 +53,9 @@ public static extern void b2SleepMilliseconds(int32 milliseconds);
 [CLink]
 public static extern void b2Yield();
 
+[CLink]
+public static extern uint32 b2Hash(uint32 hash, uint8* data, int32 count);
+
 [CRepr]
 public struct b2Vec2
 {
@@ -89,172 +92,10 @@ public struct b2AABB
 }
 
 [CLink]
-public static extern float b2MinFloat(float a, float b);
-
-[CLink]
-public static extern float b2MaxFloat(float a, float b);
-
-[CLink]
-public static extern float b2AbsFloat(float a);
-
-[CLink]
-public static extern float b2ClampFloat(float a, float lower, float upper);
-
-[CLink]
-public static extern int32 b2MinInt(int32 a, int32 b);
-
-[CLink]
-public static extern int32 b2MaxInt(int32 a, int32 b);
-
-[CLink]
-public static extern int32 b2AbsInt(int32 a);
-
-[CLink]
-public static extern int32 b2ClampInt(int32 a, int32 lower, int32 upper);
-
-[CLink]
-public static extern float b2Dot(b2Vec2 a, b2Vec2 b);
-
-[CLink]
-public static extern float b2Cross(b2Vec2 a, b2Vec2 b);
-
-[CLink]
-public static extern b2Vec2 b2CrossVS(b2Vec2 v, float s);
-
-[CLink]
-public static extern b2Vec2 b2CrossSV(float s, b2Vec2 v);
-
-[CLink]
-public static extern b2Vec2 b2LeftPerp(b2Vec2 v);
-
-[CLink]
-public static extern b2Vec2 b2RightPerp(b2Vec2 v);
-
-[CLink]
-public static extern b2Vec2 b2Add(b2Vec2 a, b2Vec2 b);
-
-[CLink]
-public static extern b2Vec2 b2Sub(b2Vec2 a, b2Vec2 b);
-
-[CLink]
-public static extern b2Vec2 b2Neg(b2Vec2 a);
-
-[CLink]
-public static extern b2Vec2 b2Lerp(b2Vec2 a, b2Vec2 b, float t);
-
-[CLink]
-public static extern b2Vec2 b2Mul(b2Vec2 a, b2Vec2 b);
-
-[CLink]
-public static extern b2Vec2 b2MulSV(float s, b2Vec2 v);
-
-[CLink]
-public static extern b2Vec2 b2MulAdd(b2Vec2 a, float s, b2Vec2 b);
-
-[CLink]
-public static extern b2Vec2 b2MulSub(b2Vec2 a, float s, b2Vec2 b);
-
-[CLink]
-public static extern b2Vec2 b2Abs(b2Vec2 a);
-
-[CLink]
-public static extern b2Vec2 b2Min(b2Vec2 a, b2Vec2 b);
-
-[CLink]
-public static extern b2Vec2 b2Max(b2Vec2 a, b2Vec2 b);
-
-[CLink]
-public static extern b2Vec2 b2Clamp(b2Vec2 v, b2Vec2 a, b2Vec2 b);
-
-[CLink]
-public static extern float b2Length(b2Vec2 v);
-
-[CLink]
-public static extern float b2LengthSquared(b2Vec2 v);
-
-[CLink]
-public static extern float b2Distance(b2Vec2 a, b2Vec2 b);
-
-[CLink]
-public static extern float b2DistanceSquared(b2Vec2 a, b2Vec2 b);
+public static extern float b2Atan2(float y, float x);
 
 [CLink]
 public static extern b2Rot b2MakeRot(float angle);
-
-[CLink]
-public static extern b2Rot b2NormalizeRot(b2Rot q);
-
-[CLink]
-public static extern bool b2IsNormalized(b2Rot q);
-
-[CLink]
-public static extern b2Rot b2NLerp(b2Rot q1, b2Rot q2, float t);
-
-[CLink]
-public static extern b2Rot b2IntegrateRotation(b2Rot q1, float deltaAngle);
-
-[CLink]
-public static extern float b2ComputeAngularVelocity(b2Rot q1, b2Rot q2, float inv_h);
-
-[CLink]
-public static extern float b2Rot_GetAngle(b2Rot q);
-
-[CLink]
-public static extern b2Vec2 b2Rot_GetXAxis(b2Rot q);
-
-[CLink]
-public static extern b2Vec2 b2Rot_GetYAxis(b2Rot q);
-
-[CLink]
-public static extern b2Rot b2MulRot(b2Rot q, b2Rot r);
-
-[CLink]
-public static extern b2Rot b2InvMulRot(b2Rot q, b2Rot r);
-
-[CLink]
-public static extern float b2RelativeAngle(b2Rot b, b2Rot a);
-
-[CLink]
-public static extern float b2UnwindAngle(float angle);
-
-[CLink]
-public static extern b2Vec2 b2RotateVector(b2Rot q, b2Vec2 v);
-
-[CLink]
-public static extern b2Vec2 b2InvRotateVector(b2Rot q, b2Vec2 v);
-
-[CLink]
-public static extern b2Vec2 b2TransformPoint(b2Transform t, b2Vec2 p);
-
-[CLink]
-public static extern b2Vec2 b2InvTransformPoint(b2Transform t, b2Vec2 p);
-
-[CLink]
-public static extern b2Transform b2MulTransforms(b2Transform A, b2Transform B);
-
-[CLink]
-public static extern b2Transform b2InvMulTransforms(b2Transform A, b2Transform B);
-
-[CLink]
-public static extern b2Vec2 b2MulMV(b2Mat22 A, b2Vec2 v);
-
-[CLink]
-public static extern b2Mat22 b2GetInverse22(b2Mat22 A);
-
-[CLink]
-public static extern b2Vec2 b2Solve22(b2Mat22 A, b2Vec2 b);
-
-[CLink]
-public static extern bool b2AABB_Contains(b2AABB a, b2AABB b);
-
-[CLink]
-public static extern b2Vec2 b2AABB_Center(b2AABB a);
-
-[CLink]
-public static extern b2Vec2 b2AABB_Extents(b2AABB a);
-
-[CLink]
-public static extern b2AABB b2AABB_Union(b2AABB a, b2AABB b);
 
 [CLink]
 public static extern bool b2IsValid(float a);
@@ -267,15 +108,6 @@ public static extern bool b2Rot_IsValid(b2Rot q);
 
 [CLink]
 public static extern bool b2AABB_IsValid(b2AABB aabb);
-
-[CLink]
-public static extern b2Vec2 b2Normalize(b2Vec2 v);
-
-[CLink]
-public static extern b2Vec2 b2NormalizeChecked(b2Vec2 v);
-
-[CLink]
-public static extern b2Vec2 b2GetLengthAndNormalize(float* length, b2Vec2 v);
 
 [CLink]
 public static extern void b2SetLengthUnitsPerMeter(float lengthUnits);
@@ -394,7 +226,7 @@ public static extern b2Polygon b2MakeBox(float hx, float hy);
 public static extern b2Polygon b2MakeRoundedBox(float hx, float hy, float radius);
 
 [CLink]
-public static extern b2Polygon b2MakeOffsetBox(float hx, float hy, b2Vec2 center, float angle);
+public static extern b2Polygon b2MakeOffsetBox(float hx, float hy, b2Vec2 center, b2Rot rotation);
 
 [CLink]
 public static extern b2Polygon b2TransformPolygon(b2Transform transform, b2Polygon* polygon);
@@ -646,7 +478,7 @@ public static extern b2Manifold b2CollideSmoothSegmentAndPolygon(b2SmoothSegment
 public struct b2TreeNode
 {
     public b2AABB aabb;
-    public uint32 categoryBits;
+    public uint64 categoryBits;
     public int32 parent;
     public int32 next;
     public int32 child1;
@@ -654,7 +486,7 @@ public struct b2TreeNode
     public int32 userData;
     public int16 height;
     public bool enlarged;
-    public uint8[9] pad;
+    public uint8[5] pad;
 }
 
 [CRepr]
@@ -680,7 +512,7 @@ public static extern b2DynamicTree b2DynamicTree_Create();
 public static extern void b2DynamicTree_Destroy(b2DynamicTree* tree);
 
 [CLink]
-public static extern int32 b2DynamicTree_CreateProxy(b2DynamicTree* tree, b2AABB aabb, uint32 categoryBits, int32 userData);
+public static extern int32 b2DynamicTree_CreateProxy(b2DynamicTree* tree, b2AABB aabb, uint64 categoryBits, int32 userData);
 
 [CLink]
 public static extern void b2DynamicTree_DestroyProxy(b2DynamicTree* tree, int32 proxyId);
@@ -694,17 +526,17 @@ public static extern void b2DynamicTree_EnlargeProxy(b2DynamicTree* tree, int32 
 public function bool b2TreeQueryCallbackFcn(int32 proxyId, int32 userData, void* context);
 
 [CLink]
-public static extern void b2DynamicTree_Query(b2DynamicTree* tree, b2AABB aabb, uint32 maskBits, b2TreeQueryCallbackFcn callback, void* context);
+public static extern void b2DynamicTree_Query(b2DynamicTree* tree, b2AABB aabb, uint64 maskBits, b2TreeQueryCallbackFcn callback, void* context);
 
 public function float b2TreeRayCastCallbackFcn(b2RayCastInput* input, int32 proxyId, int32 userData, void* context);
 
 [CLink]
-public static extern void b2DynamicTree_RayCast(b2DynamicTree* tree, b2RayCastInput* input, uint32 maskBits, b2TreeRayCastCallbackFcn callback, void* context);
+public static extern void b2DynamicTree_RayCast(b2DynamicTree* tree, b2RayCastInput* input, uint64 maskBits, b2TreeRayCastCallbackFcn callback, void* context);
 
 public function float b2TreeShapeCastCallbackFcn(b2ShapeCastInput* input, int32 proxyId, int32 userData, void* context);
 
 [CLink]
-public static extern void b2DynamicTree_ShapeCast(b2DynamicTree* tree, b2ShapeCastInput* input, uint32 maskBits, b2TreeShapeCastCallbackFcn callback, void* context);
+public static extern void b2DynamicTree_ShapeCast(b2DynamicTree* tree, b2ShapeCastInput* input, uint64 maskBits, b2TreeShapeCastCallbackFcn callback, void* context);
 
 [CLink]
 public static extern void b2DynamicTree_Validate(b2DynamicTree* tree);
@@ -732,12 +564,6 @@ public static extern void b2DynamicTree_ShiftOrigin(b2DynamicTree* tree, b2Vec2 
 
 [CLink]
 public static extern int32 b2DynamicTree_GetByteCount(b2DynamicTree* tree);
-
-[CLink]
-public static extern int32 b2DynamicTree_GetUserData(b2DynamicTree* tree, int32 proxyId);
-
-[CLink]
-public static extern b2AABB b2DynamicTree_GetAABB(b2DynamicTree* tree, int32 proxyId);
 
 [CRepr]
 public struct b2WorldId
@@ -805,8 +631,9 @@ public struct b2WorldDef
     public float contactDampingRatio;
     public float jointHertz;
     public float jointDampingRatio;
+    public float maximumLinearVelocity;
     public bool enableSleep;
-    public bool enableContinous;
+    public bool enableContinuous;
     public int32 workerCount;
     public b2EnqueueTaskCallback enqueueTask;
     public b2FinishTaskCallback finishTask;
@@ -845,6 +672,7 @@ public struct b2BodyDef
     public bool isBullet;
     public bool isEnabled;
     public bool automaticMass;
+    public bool allowFastRotation;
     public int32 internalValue;
 }
 
@@ -854,8 +682,8 @@ public static extern b2BodyDef b2DefaultBodyDef();
 [CRepr]
 public struct b2Filter
 {
-    public uint32 categoryBits;
-    public uint32 maskBits;
+    public uint64 categoryBits;
+    public uint64 maskBits;
     public int32 groupIndex;
 }
 
@@ -865,8 +693,8 @@ public static extern b2Filter b2DefaultFilter();
 [CRepr]
 public struct b2QueryFilter
 {
-    public uint32 categoryBits;
-    public uint32 maskBits;
+    public uint64 categoryBits;
+    public uint64 maskBits;
 }
 
 [CLink]
@@ -1228,7 +1056,6 @@ public enum b2HexColor : int32
 {
     b2_colorAliceBlue = 15792383,
     b2_colorAntiqueWhite = 16444375,
-    b2_colorAqua = 65535,
     b2_colorAquamarine = 8388564,
     b2_colorAzure = 15794175,
     b2_colorBeige = 16119260,
@@ -1271,7 +1098,6 @@ public enum b2HexColor : int32
     b2_colorFirebrick = 11674146,
     b2_colorFloralWhite = 16775920,
     b2_colorForestGreen = 2263842,
-    b2_colorFuchsia = 16711935,
     b2_colorGainsboro = 14474460,
     b2_colorGhostWhite = 16316671,
     b2_colorGold = 16766720,
@@ -1313,7 +1139,6 @@ public enum b2HexColor : int32
     b2_colorLightSlateGray = 7833753,
     b2_colorLightSteelBlue = 11584734,
     b2_colorLightYellow = 16777184,
-    b2_colorLime = 65280,
     b2_colorLimeGreen = 3329330,
     b2_colorLinen = 16445670,
     b2_colorMagenta = 16711935,
@@ -1332,7 +1157,6 @@ public enum b2HexColor : int32
     b2_colorMistyRose = 16770273,
     b2_colorMoccasin = 16770229,
     b2_colorNavajoWhite = 16768685,
-    b2_colorNavy = 128,
     b2_colorNavyBlue = 128,
     b2_colorOldLace = 16643558,
     b2_colorOlive = 8421376,
@@ -1413,6 +1237,9 @@ public struct b2DebugDraw
     public bool drawFrictionImpulses;
     public void* context;
 }
+
+[CLink]
+public static extern b2DebugDraw b2DefaultDebugDraw();
 
 [CLink]
 public static extern b2WorldId b2CreateWorld(b2WorldDef* def);
@@ -1586,7 +1413,7 @@ public static extern void b2Body_ApplyAngularImpulse(b2BodyId bodyId, float impu
 public static extern float b2Body_GetMass(b2BodyId bodyId);
 
 [CLink]
-public static extern float b2Body_GetInertiaTensor(b2BodyId bodyId);
+public static extern float b2Body_GetRotationalInertia(b2BodyId bodyId);
 
 [CLink]
 public static extern b2Vec2 b2Body_GetLocalCenterOfMass(b2BodyId bodyId);
@@ -1640,7 +1467,7 @@ public static extern void b2Body_EnableSleep(b2BodyId bodyId, bool enableSleep);
 public static extern bool b2Body_IsSleepEnabled(b2BodyId bodyId);
 
 [CLink]
-public static extern void b2Body_SetSleepThreshold(b2BodyId bodyId, float sleepVelocity);
+public static extern void b2Body_SetSleepThreshold(b2BodyId bodyId, float sleepThreshold);
 
 [CLink]
 public static extern float b2Body_GetSleepThreshold(b2BodyId bodyId);
@@ -1898,10 +1725,10 @@ public static extern void b2DistanceJoint_SetSpringHertz(b2JointId jointId, floa
 public static extern void b2DistanceJoint_SetSpringDampingRatio(b2JointId jointId, float dampingRatio);
 
 [CLink]
-public static extern float b2DistanceJoint_GetHertz(b2JointId jointId);
+public static extern float b2DistanceJoint_GetSpringHertz(b2JointId jointId);
 
 [CLink]
-public static extern float b2DistanceJoint_GetDampingRatio(b2JointId jointId);
+public static extern float b2DistanceJoint_GetSpringDampingRatio(b2JointId jointId);
 
 [CLink]
 public static extern void b2DistanceJoint_EnableLimit(b2JointId jointId, bool enableLimit);
@@ -2064,6 +1891,9 @@ public static extern b2JointId b2CreateRevoluteJoint(b2WorldId worldId, b2Revolu
 
 [CLink]
 public static extern void b2RevoluteJoint_EnableSpring(b2JointId jointId, bool enableSpring);
+
+[CLink]
+public static extern bool b2RevoluteJoint_IsSpringEnabled(b2JointId jointId);
 
 [CLink]
 public static extern void b2RevoluteJoint_SetSpringHertz(b2JointId jointId, float hertz);
