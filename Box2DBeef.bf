@@ -64,6 +64,13 @@ public struct b2Vec2
 }
 
 [CRepr]
+public struct b2CosSin
+{
+    public float cosine;
+    public float sine;
+}
+
+[CRepr]
 public struct b2Rot
 {
     public float c;
@@ -95,7 +102,10 @@ public struct b2AABB
 public static extern float b2Atan2(float y, float x);
 
 [CLink]
-public static extern b2Rot b2MakeRot(float angle);
+public static extern b2CosSin b2ComputeCosSin(float angle);
+
+[CLink]
+public static extern b2Rot b2ComputeRotationBetweenUnitVectors(b2Vec2 v1, b2Vec2 v2);
 
 [CLink]
 public static extern bool b2IsValid(float a);
@@ -156,7 +166,7 @@ public struct b2Segment
 }
 
 [CRepr]
-public struct b2SmoothSegment
+public struct b2ChainSegment
 {
     public b2Vec2 ghost1;
     public b2Segment segment;
@@ -214,7 +224,10 @@ public static extern bool b2IsValidRay(b2RayCastInput* input);
 public static extern b2Polygon b2MakePolygon(b2Hull hull, float radius);
 
 [CLink]
-public static extern b2Polygon b2MakeOffsetPolygon(b2Hull hull, float radius, b2Transform transform);
+public static extern b2Polygon b2MakeOffsetPolygon(b2Hull hull, b2Vec2 position, b2Rot rotation);
+
+[CLink]
+public static extern b2Polygon b2MakeOffsetRoundedPolygon(b2Hull hull, b2Vec2 position, b2Rot rotation, float radius);
 
 [CLink]
 public static extern b2Polygon b2MakeSquare(float h);
@@ -227,6 +240,9 @@ public static extern b2Polygon b2MakeRoundedBox(float hx, float hy, float radius
 
 [CLink]
 public static extern b2Polygon b2MakeOffsetBox(float hx, float hy, b2Vec2 center, b2Rot rotation);
+
+[CLink]
+public static extern b2Polygon b2MakeOffsetRoundedBox(float hx, float hy, b2Vec2 center, b2Rot rotation, float radius);
 
 [CLink]
 public static extern b2Polygon b2TransformPolygon(b2Transform transform, b2Polygon* polygon);
@@ -466,13 +482,13 @@ public static extern b2Manifold b2CollidePolygons(b2Polygon* polygonA, b2Transfo
 public static extern b2Manifold b2CollideSegmentAndPolygon(b2Segment* segmentA, b2Transform xfA, b2Polygon* polygonB, b2Transform xfB);
 
 [CLink]
-public static extern b2Manifold b2CollideSmoothSegmentAndCircle(b2SmoothSegment* smoothSegmentA, b2Transform xfA, b2Circle* circleB, b2Transform xfB);
+public static extern b2Manifold b2CollideChainSegmentAndCircle(b2ChainSegment* segmentA, b2Transform xfA, b2Circle* circleB, b2Transform xfB);
 
 [CLink]
-public static extern b2Manifold b2CollideSmoothSegmentAndCapsule(b2SmoothSegment* smoothSegmentA, b2Transform xfA, b2Capsule* capsuleB, b2Transform xfB, b2DistanceCache* cache);
+public static extern b2Manifold b2CollideChainSegmentAndCapsule(b2ChainSegment* segmentA, b2Transform xfA, b2Capsule* capsuleB, b2Transform xfB, b2DistanceCache* cache);
 
 [CLink]
-public static extern b2Manifold b2CollideSmoothSegmentAndPolygon(b2SmoothSegment* smoothSegmentA, b2Transform xfA, b2Polygon* polygonB, b2Transform xfB, b2DistanceCache* cache);
+public static extern b2Manifold b2CollideChainSegmentAndPolygon(b2ChainSegment* segmentA, b2Transform xfA, b2Polygon* polygonB, b2Transform xfB, b2DistanceCache* cache);
 
 [CRepr]
 public struct b2TreeNode
@@ -484,9 +500,8 @@ public struct b2TreeNode
     public int32 child1;
     public int32 child2;
     public int32 userData;
-    public int16 height;
-    public bool enlarged;
-    public uint8[5] pad;
+    public uint16 height;
+    public uint16 flags;
 }
 
 [CRepr]
@@ -503,6 +518,13 @@ public struct b2DynamicTree
     public b2Vec2* leafCenters;
     public int32* binIndices;
     public int32 rebuildCapacity;
+}
+
+[CRepr]
+public struct b2TreeStats
+{
+    public int32 nodeVisits;
+    public int32 leafVisits;
 }
 
 [CLink]
@@ -526,17 +548,17 @@ public static extern void b2DynamicTree_EnlargeProxy(b2DynamicTree* tree, int32 
 public function bool b2TreeQueryCallbackFcn(int32 proxyId, int32 userData, void* context);
 
 [CLink]
-public static extern void b2DynamicTree_Query(b2DynamicTree* tree, b2AABB aabb, uint64 maskBits, b2TreeQueryCallbackFcn callback, void* context);
+public static extern b2TreeStats b2DynamicTree_Query(b2DynamicTree* tree, b2AABB aabb, uint64 maskBits, b2TreeQueryCallbackFcn callback, void* context);
 
 public function float b2TreeRayCastCallbackFcn(b2RayCastInput* input, int32 proxyId, int32 userData, void* context);
 
 [CLink]
-public static extern void b2DynamicTree_RayCast(b2DynamicTree* tree, b2RayCastInput* input, uint64 maskBits, b2TreeRayCastCallbackFcn callback, void* context);
+public static extern b2TreeStats b2DynamicTree_RayCast(b2DynamicTree* tree, b2RayCastInput* input, uint64 maskBits, b2TreeRayCastCallbackFcn callback, void* context);
 
 public function float b2TreeShapeCastCallbackFcn(b2ShapeCastInput* input, int32 proxyId, int32 userData, void* context);
 
 [CLink]
-public static extern void b2DynamicTree_ShapeCast(b2DynamicTree* tree, b2ShapeCastInput* input, uint64 maskBits, b2TreeShapeCastCallbackFcn callback, void* context);
+public static extern b2TreeStats b2DynamicTree_ShapeCast(b2DynamicTree* tree, b2ShapeCastInput* input, uint64 maskBits, b2TreeShapeCastCallbackFcn callback, void* context);
 
 [CLink]
 public static extern void b2DynamicTree_Validate(b2DynamicTree* tree);
@@ -589,7 +611,7 @@ public struct b2ShapeId
 }
 
 [CRepr]
-public struct b2JointId
+public struct b2ChainId
 {
     public int32 index1;
     public uint16 world0;
@@ -597,7 +619,7 @@ public struct b2JointId
 }
 
 [CRepr]
-public struct b2ChainId
+public struct b2JointId
 {
     public int32 index1;
     public uint16 world0;
@@ -617,7 +639,19 @@ public struct b2RayResult
     public b2Vec2 point;
     public b2Vec2 normal;
     public float fraction;
+    public int32 nodeVisits;
+    public int32 leafVisits;
     public bool hit;
+}
+
+[CRepr, AllowDuplicates]
+public enum b2MixingRule : int32
+{
+    b2_mixAverage = 0,
+    b2_mixGeometricMean = 1,
+    b2_mixMultiply = 2,
+    b2_mixMinimum = 3,
+    b2_mixMaximum = 4
 }
 
 [CRepr]
@@ -632,12 +666,15 @@ public struct b2WorldDef
     public float jointHertz;
     public float jointDampingRatio;
     public float maximumLinearVelocity;
+    public b2MixingRule frictionMixingRule;
+    public b2MixingRule restitutionMixingRule;
     public bool enableSleep;
     public bool enableContinuous;
     public int32 workerCount;
     public b2EnqueueTaskCallback enqueueTask;
     public b2FinishTaskCallback finishTask;
     public void* userTaskContext;
+    public void* userData;
     public int32 internalValue;
 }
 
@@ -671,7 +708,6 @@ public struct b2BodyDef
     public bool fixedRotation;
     public bool isBullet;
     public bool isEnabled;
-    public bool automaticMass;
     public bool allowFastRotation;
     public int32 internalValue;
 }
@@ -707,7 +743,7 @@ public enum b2ShapeType : int32
     b2_capsuleShape = 1,
     b2_segmentShape = 2,
     b2_polygonShape = 3,
-    b2_smoothSegmentShape = 4,
+    b2_chainSegmentShape = 4,
     b2_shapeTypeCount = 5
 }
 
@@ -725,7 +761,8 @@ public struct b2ShapeDef
     public bool enableContactEvents;
     public bool enableHitEvents;
     public bool enablePreSolveEvents;
-    public bool forceContactCreation;
+    public bool invokeContactCreation;
+    public bool updateBodyMass;
     public int32 internalValue;
 }
 
@@ -741,6 +778,7 @@ public struct b2ChainDef
     public float friction;
     public float restitution;
     public b2Filter filter;
+    public uint32 customColor;
     public bool isLoop;
     public int32 internalValue;
 }
@@ -778,7 +816,6 @@ public struct b2Profile
 [CRepr]
 public struct b2Counters
 {
-    public int32 staticBodyCount;
     public int32 bodyCount;
     public int32 shapeCount;
     public int32 contactCount;
@@ -798,10 +835,11 @@ public enum b2JointType : int32
     b2_distanceJoint = 0,
     b2_motorJoint = 1,
     b2_mouseJoint = 2,
-    b2_prismaticJoint = 3,
-    b2_revoluteJoint = 4,
-    b2_weldJoint = 5,
-    b2_wheelJoint = 6
+    b2_nullJoint = 3,
+    b2_prismaticJoint = 4,
+    b2_revoluteJoint = 5,
+    b2_weldJoint = 6,
+    b2_wheelJoint = 7
 }
 
 [CRepr]
@@ -863,6 +901,18 @@ public struct b2MouseJointDef
 
 [CLink]
 public static extern b2MouseJointDef b2DefaultMouseJointDef();
+
+[CRepr]
+public struct b2NullJointDef
+{
+    public b2BodyId bodyIdA;
+    public b2BodyId bodyIdB;
+    public void* userData;
+    public int32 internalValue;
+}
+
+[CLink]
+public static extern b2NullJointDef b2DefaultNullJointDef();
 
 [CRepr]
 public struct b2PrismaticJointDef
@@ -962,6 +1012,19 @@ public struct b2WheelJointDef
 public static extern b2WheelJointDef b2DefaultWheelJointDef();
 
 [CRepr]
+public struct b2ExplosionDef
+{
+    public uint64 maskBits;
+    public b2Vec2 position;
+    public float radius;
+    public float falloff;
+    public float impulsePerLength;
+}
+
+[CLink]
+public static extern b2ExplosionDef b2DefaultExplosionDef();
+
+[CRepr]
 public struct b2SensorBeginTouchEvent
 {
     public b2ShapeId sensorShapeId;
@@ -989,6 +1052,7 @@ public struct b2ContactBeginTouchEvent
 {
     public b2ShapeId shapeIdA;
     public b2ShapeId shapeIdB;
+    public b2Manifold manifold;
 }
 
 [CRepr]
@@ -1217,7 +1281,6 @@ public struct b2DebugDraw
     public function void(b2Transform transform, b2Vec2* vertices, int32 vertexCount, float radius, b2HexColor color, void* context) DrawSolidPolygon;
     public function void(b2Vec2 center, float radius, b2HexColor color, void* context) DrawCircle;
     public function void(b2Transform transform, float radius, b2HexColor color, void* context) DrawSolidCircle;
-    public function void(b2Vec2 p1, b2Vec2 p2, float radius, b2HexColor color, void* context) DrawCapsule;
     public function void(b2Vec2 p1, b2Vec2 p2, float radius, b2HexColor color, void* context) DrawSolidCapsule;
     public function void(b2Vec2 p1, b2Vec2 p2, b2HexColor color, void* context) DrawSegment;
     public function void(b2Transform transform, void* context) DrawTransform;
@@ -1266,43 +1329,58 @@ public static extern b2SensorEvents b2World_GetSensorEvents(b2WorldId worldId);
 public static extern b2ContactEvents b2World_GetContactEvents(b2WorldId worldId);
 
 [CLink]
-public static extern void b2World_OverlapAABB(b2WorldId worldId, b2AABB aabb, b2QueryFilter filter, b2OverlapResultFcn fcn, void* context);
+public static extern b2TreeStats b2World_OverlapAABB(b2WorldId worldId, b2AABB aabb, b2QueryFilter filter, b2OverlapResultFcn fcn, void* context);
 
 [CLink]
-public static extern void b2World_OverlapCircle(b2WorldId worldId, b2Circle* circle, b2Transform transform, b2QueryFilter filter, b2OverlapResultFcn fcn, void* context);
+public static extern b2TreeStats b2World_OverlapPoint(b2WorldId worldId, b2Vec2 point, b2Transform transform, b2QueryFilter filter, b2OverlapResultFcn fcn, void* context);
 
 [CLink]
-public static extern void b2World_OverlapCapsule(b2WorldId worldId, b2Capsule* capsule, b2Transform transform, b2QueryFilter filter, b2OverlapResultFcn fcn, void* context);
+public static extern b2TreeStats b2World_OverlapCircle(b2WorldId worldId, b2Circle* circle, b2Transform transform, b2QueryFilter filter, b2OverlapResultFcn fcn, void* context);
 
 [CLink]
-public static extern void b2World_OverlapPolygon(b2WorldId worldId, b2Polygon* polygon, b2Transform transform, b2QueryFilter filter, b2OverlapResultFcn fcn, void* context);
+public static extern b2TreeStats b2World_OverlapCapsule(b2WorldId worldId, b2Capsule* capsule, b2Transform transform, b2QueryFilter filter, b2OverlapResultFcn fcn, void* context);
 
 [CLink]
-public static extern void b2World_CastRay(b2WorldId worldId, b2Vec2 origin, b2Vec2 translation, b2QueryFilter filter, b2CastResultFcn fcn, void* context);
+public static extern b2TreeStats b2World_OverlapPolygon(b2WorldId worldId, b2Polygon* polygon, b2Transform transform, b2QueryFilter filter, b2OverlapResultFcn fcn, void* context);
+
+[CLink]
+public static extern b2TreeStats b2World_CastRay(b2WorldId worldId, b2Vec2 origin, b2Vec2 translation, b2QueryFilter filter, b2CastResultFcn fcn, void* context);
 
 [CLink]
 public static extern b2RayResult b2World_CastRayClosest(b2WorldId worldId, b2Vec2 origin, b2Vec2 translation, b2QueryFilter filter);
 
 [CLink]
-public static extern void b2World_CastCircle(b2WorldId worldId, b2Circle* circle, b2Transform originTransform, b2Vec2 translation, b2QueryFilter filter, b2CastResultFcn fcn, void* context);
+public static extern b2TreeStats b2World_CastCircle(b2WorldId worldId, b2Circle* circle, b2Transform originTransform, b2Vec2 translation, b2QueryFilter filter, b2CastResultFcn fcn, void* context);
 
 [CLink]
-public static extern void b2World_CastCapsule(b2WorldId worldId, b2Capsule* capsule, b2Transform originTransform, b2Vec2 translation, b2QueryFilter filter, b2CastResultFcn fcn, void* context);
+public static extern b2TreeStats b2World_CastCapsule(b2WorldId worldId, b2Capsule* capsule, b2Transform originTransform, b2Vec2 translation, b2QueryFilter filter, b2CastResultFcn fcn, void* context);
 
 [CLink]
-public static extern void b2World_CastPolygon(b2WorldId worldId, b2Polygon* polygon, b2Transform originTransform, b2Vec2 translation, b2QueryFilter filter, b2CastResultFcn fcn, void* context);
+public static extern b2TreeStats b2World_CastPolygon(b2WorldId worldId, b2Polygon* polygon, b2Transform originTransform, b2Vec2 translation, b2QueryFilter filter, b2CastResultFcn fcn, void* context);
 
 [CLink]
 public static extern void b2World_EnableSleeping(b2WorldId worldId, bool flag);
 
 [CLink]
+public static extern bool b2World_IsSleepingEnabled(b2WorldId worldId);
+
+[CLink]
 public static extern void b2World_EnableContinuous(b2WorldId worldId, bool flag);
+
+[CLink]
+public static extern bool b2World_IsContinuousEnabled(b2WorldId worldId);
 
 [CLink]
 public static extern void b2World_SetRestitutionThreshold(b2WorldId worldId, float value);
 
 [CLink]
+public static extern float b2World_GetRestitutionThreshold(b2WorldId worldId);
+
+[CLink]
 public static extern void b2World_SetHitEventThreshold(b2WorldId worldId, float value);
+
+[CLink]
+public static extern float b2World_GetHitEventThreshold(b2WorldId worldId);
 
 [CLink]
 public static extern void b2World_SetCustomFilterCallback(b2WorldId worldId, b2CustomFilterFcn fcn, void* context);
@@ -1317,13 +1395,25 @@ public static extern void b2World_SetGravity(b2WorldId worldId, b2Vec2 gravity);
 public static extern b2Vec2 b2World_GetGravity(b2WorldId worldId);
 
 [CLink]
-public static extern void b2World_Explode(b2WorldId worldId, b2Vec2 position, float radius, float impulse);
+public static extern void b2World_Explode(b2WorldId worldId, b2ExplosionDef* explosionDef);
 
 [CLink]
 public static extern void b2World_SetContactTuning(b2WorldId worldId, float hertz, float dampingRatio, float pushVelocity);
 
 [CLink]
+public static extern void b2World_SetJointTuning(b2WorldId worldId, float hertz, float dampingRatio);
+
+[CLink]
+public static extern void b2World_SetMaximumLinearVelocity(b2WorldId worldId, float maximumLinearVelocity);
+
+[CLink]
+public static extern float b2World_GetMaximumLinearVelocity(b2WorldId worldId);
+
+[CLink]
 public static extern void b2World_EnableWarmStarting(b2WorldId worldId, bool flag);
+
+[CLink]
+public static extern bool b2World_IsWarmStartingEnabled(b2WorldId worldId);
 
 [CLink]
 public static extern b2Profile b2World_GetProfile(b2WorldId worldId);
@@ -1332,7 +1422,16 @@ public static extern b2Profile b2World_GetProfile(b2WorldId worldId);
 public static extern b2Counters b2World_GetCounters(b2WorldId worldId);
 
 [CLink]
+public static extern void b2World_SetUserData(b2WorldId worldId, void* userData);
+
+[CLink]
+public static extern void* b2World_GetUserData(b2WorldId worldId);
+
+[CLink]
 public static extern void b2World_DumpMemoryStats(b2WorldId worldId);
+
+[CLink]
+public static extern void b2World_RebuildStaticTree(b2WorldId worldId);
 
 [CLink]
 public static extern b2BodyId b2CreateBody(b2WorldId worldId, b2BodyDef* def);
@@ -1431,12 +1530,6 @@ public static extern b2MassData b2Body_GetMassData(b2BodyId bodyId);
 public static extern void b2Body_ApplyMassFromShapes(b2BodyId bodyId);
 
 [CLink]
-public static extern void b2Body_SetAutomaticMass(b2BodyId bodyId, bool automaticMass);
-
-[CLink]
-public static extern bool b2Body_GetAutomaticMass(b2BodyId bodyId);
-
-[CLink]
 public static extern void b2Body_SetLinearDamping(b2BodyId bodyId, float linearDamping);
 
 [CLink]
@@ -1497,6 +1590,9 @@ public static extern bool b2Body_IsBullet(b2BodyId bodyId);
 public static extern void b2Body_EnableHitEvents(b2BodyId bodyId, bool enableHitEvents);
 
 [CLink]
+public static extern b2WorldId b2Body_GetWorld(b2BodyId bodyId);
+
+[CLink]
 public static extern int32 b2Body_GetShapeCount(b2BodyId bodyId);
 
 [CLink]
@@ -1530,7 +1626,7 @@ public static extern b2ShapeId b2CreateCapsuleShape(b2BodyId bodyId, b2ShapeDef*
 public static extern b2ShapeId b2CreatePolygonShape(b2BodyId bodyId, b2ShapeDef* def, b2Polygon* polygon);
 
 [CLink]
-public static extern void b2DestroyShape(b2ShapeId shapeId);
+public static extern void b2DestroyShape(b2ShapeId shapeId, bool updateBodyMass);
 
 [CLink]
 public static extern bool b2Shape_IsValid(b2ShapeId id);
@@ -1542,6 +1638,9 @@ public static extern b2ShapeType b2Shape_GetType(b2ShapeId shapeId);
 public static extern b2BodyId b2Shape_GetBody(b2ShapeId shapeId);
 
 [CLink]
+public static extern b2WorldId b2Shape_GetWorld(b2ShapeId shapeId);
+
+[CLink]
 public static extern bool b2Shape_IsSensor(b2ShapeId shapeId);
 
 [CLink]
@@ -1551,7 +1650,7 @@ public static extern void b2Shape_SetUserData(b2ShapeId shapeId, void* userData)
 public static extern void* b2Shape_GetUserData(b2ShapeId shapeId);
 
 [CLink]
-public static extern void b2Shape_SetDensity(b2ShapeId shapeId, float density);
+public static extern void b2Shape_SetDensity(b2ShapeId shapeId, float density, bool updateBodyMass);
 
 [CLink]
 public static extern float b2Shape_GetDensity(b2ShapeId shapeId);
@@ -1602,7 +1701,7 @@ public static extern bool b2Shape_AreHitEventsEnabled(b2ShapeId shapeId);
 public static extern bool b2Shape_TestPoint(b2ShapeId shapeId, b2Vec2 point);
 
 [CLink]
-public static extern b2CastOutput b2Shape_RayCast(b2ShapeId shapeId, b2Vec2 origin, b2Vec2 translation);
+public static extern b2CastOutput b2Shape_RayCast(b2ShapeId shapeId, b2RayCastInput* input);
 
 [CLink]
 public static extern b2Circle b2Shape_GetCircle(b2ShapeId shapeId);
@@ -1611,7 +1710,7 @@ public static extern b2Circle b2Shape_GetCircle(b2ShapeId shapeId);
 public static extern b2Segment b2Shape_GetSegment(b2ShapeId shapeId);
 
 [CLink]
-public static extern b2SmoothSegment b2Shape_GetSmoothSegment(b2ShapeId shapeId);
+public static extern b2ChainSegment b2Shape_GetChainSegment(b2ShapeId shapeId);
 
 [CLink]
 public static extern b2Capsule b2Shape_GetCapsule(b2ShapeId shapeId);
@@ -1653,6 +1752,15 @@ public static extern b2ChainId b2CreateChain(b2BodyId bodyId, b2ChainDef* def);
 public static extern void b2DestroyChain(b2ChainId chainId);
 
 [CLink]
+public static extern b2WorldId b2Chain_GetWorld(b2ChainId chainId);
+
+[CLink]
+public static extern int32 b2Chain_GetSegmentCount(b2ChainId chainId);
+
+[CLink]
+public static extern int32 b2Chain_GetSegments(b2ChainId chainId, b2ShapeId* segmentArray, int32 capacity);
+
+[CLink]
 public static extern void b2Chain_SetFriction(b2ChainId chainId, float friction);
 
 [CLink]
@@ -1675,6 +1783,9 @@ public static extern b2BodyId b2Joint_GetBodyA(b2JointId jointId);
 
 [CLink]
 public static extern b2BodyId b2Joint_GetBodyB(b2JointId jointId);
+
+[CLink]
+public static extern b2WorldId b2Joint_GetWorld(b2JointId jointId);
 
 [CLink]
 public static extern b2Vec2 b2Joint_GetLocalAnchorA(b2JointId jointId);
@@ -1830,6 +1941,9 @@ public static extern void b2MouseJoint_SetMaxForce(b2JointId jointId, float maxF
 public static extern float b2MouseJoint_GetMaxForce(b2JointId jointId);
 
 [CLink]
+public static extern b2JointId b2CreateNullJoint(b2WorldId worldId, b2NullJointDef* def);
+
+[CLink]
 public static extern b2JointId b2CreatePrismaticJoint(b2WorldId worldId, b2PrismaticJointDef* def);
 
 [CLink]
@@ -1885,6 +1999,12 @@ public static extern float b2PrismaticJoint_GetMaxMotorForce(b2JointId jointId);
 
 [CLink]
 public static extern float b2PrismaticJoint_GetMotorForce(b2JointId jointId);
+
+[CLink]
+public static extern float b2PrismaticJoint_GetTranslation(b2JointId jointId);
+
+[CLink]
+public static extern float b2PrismaticJoint_GetSpeed(b2JointId jointId);
 
 [CLink]
 public static extern b2JointId b2CreateRevoluteJoint(b2WorldId worldId, b2RevoluteJointDef* def);
@@ -1948,6 +2068,12 @@ public static extern float b2RevoluteJoint_GetMaxMotorTorque(b2JointId jointId);
 
 [CLink]
 public static extern b2JointId b2CreateWeldJoint(b2WorldId worldId, b2WeldJointDef* def);
+
+[CLink]
+public static extern float b2WeldJoint_GetReferenceAngle(b2JointId jointId);
+
+[CLink]
+public static extern void b2WeldJoint_SetReferenceAngle(b2JointId jointId, float angleInRadians);
 
 [CLink]
 public static extern void b2WeldJoint_SetLinearHertz(b2JointId jointId, float hertz);
